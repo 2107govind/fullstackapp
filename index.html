@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Full Stack App - Landing + Admin</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(to right, #f0f0f0, #e6f7ff);
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+    header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    header h1 {
+      font-size: 3em;
+      color: #007acc;
+    }
+    section {
+      margin: 40px 0;
+      padding: 20px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    section h2 {
+      border-left: 6px solid #007acc;
+      padding-left: 10px;
+      color: #007acc;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    ul li {
+      padding: 8px;
+      background: #f9f9f9;
+      margin-bottom: 6px;
+      border-left: 4px solid #007acc;
+    }
+    form input, form textarea, form button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    form button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    form button:hover {
+      background-color: #005c99;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleView()">Switch View</button>
+
+  <div id="user" class="container">
+    <header>
+      <h1>My Portfolio</h1>
+      <p>A full stack developer portfolio landing page</p>
+    </header>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <ul id="projectList">
+        <li>Loading projects...</li>
+      </ul>
+    </section>
+
+    <section id="clients">
+      <h2>Clients</h2>
+      <ul id="clientList">
+        <li>Loading clients...</li>
+      </ul>
+    </section>
+
+    <section id="contact">
+      <h2>Contact Me</h2>
+      <form id="contactForm">
+        <input type="text" name="name" placeholder="Your Name" required />
+        <input type="email" name="email" placeholder="Your Email" required />
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+
+    <section id="newsletter">
+      <h2>Newsletter Subscription</h2>
+      <form id="newsletterForm">
+        <input type="email" name="email" placeholder="Your Email" required />
+        <button type="submit">Subscribe</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="admin" class="container" style="display: none;">
+    <header>
+      <h1>🛠 Admin Panel</h1>
+      <p>Manage content & view submissions</p>
+    </header>
+
+    <section>
+      <h2>Add Project</h2>
+      <form id="addProjectForm">
+        <input type="text" name="name" placeholder="Project Name" required />
+        <textarea name="description" placeholder="Project Description" required></textarea>
+        <button type="submit">Add Project</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Add Client</h2>
+      <form id="addClientForm">
+        <input type="text" name="name" placeholder="Client Name" required />
+        <button type="submit">Add Client</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Contact Submissions</h2>
+      <table id="contactTable">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Message</th></tr>
+        </thead>
+        <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Newsletter Subscribers</h2>
+      <table id="newsletterTable">
+        <thead><tr><th>Email</th></tr></thead>
+        <tbody><tr><td>Loading...</td></tr></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const API = "http://127.0.0.1:5000"; // update with actual backend URL
+
+    function toggleView() {
+      const user = document.getElementById("user");
+      const admin = document.getElementById("admin");
+      user.style.display = user.style.display === "none" ? "block" : "none";
+      admin.style.display = admin.style.display === "none" ? "block" : "none";
+    }
+
+    // Load projects
+    fetch(`${API}/api/projects`).then(res => res.json()).then(data => {
+      const list = document.getElementById('projectList');
+      list.innerHTML = '';
+      data.forEach(proj => {
+        const li = document.createElement('li');
+        li.textContent = `${proj.name} - ${proj.description}`;
+        list.appendChild(li);
+      });
+    });
+
+    // Load clients
+    fetch(`${API}/api/clients`).then(res => res.json()).then(data => {
+      const list = document.getElementById('clientList');
+      list.innerHTML = '';
+      data.forEach(client => {
+        const li = document.createElement('li');
+        li.textContent = client.name;
+        list.appendChild(li);
+      });
+    });
+
+    // Contact form
+    document.getElementById('contactForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+      fetch(`${API}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          alert("Message sent!");
+          this.reset();
+        }
+      });
+    });
+
+    // Newsletter form
+    document.getElementById('newsletterForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = this.email.value;
+      fetch(`${API}/api/newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      }).then(res => {
+        if (res.ok) {
+          alert("Subscribed!");
+          this.reset();
+        }
+      });
+    });
+
+    // Admin: add project
+    document.getElementById('addProjectForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+      fetch(`${API}/api/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          alert("Project added!");
+          this.reset();
+        }
+      });
+    });
+
+    // Admin: add client
+    document.getElementById('addClientForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(this).entries());
+      fetch(`${API}/api/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          alert("Client added!");
+          this.reset();
+        }
+      });
+    });
+
+    // Admin: load contact submissions
+    fetch(`${API}/api/contacts`).then(res => res.json()).then(data => {
+      const table = document.querySelector('#contactTable tbody');
+      table.innerHTML = '';
+      data.forEach(row => {
+        table.innerHTML += `<tr><td>${row.name}</td><td>${row.email}</td><td>${row.message}</td></tr>`;
+      });
+    });
+
+    // Admin: load newsletter emails
+    fetch(`${API}/api/newsletter`).then(res => res.json()).then(data => {
+      const table = document.querySelector('#newsletterTable tbody');
+      table.innerHTML = '';
+      data.forEach(row => {
+        table.innerHTML += `<tr><td>${row.email}</td></tr>`;
+      });
+    });
+  </script>
+</body>
+</html>
